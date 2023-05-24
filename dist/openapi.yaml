@@ -133,6 +133,57 @@ paths:
                 $ref: '#/components/schemas/RecipePreview'
         "404":
           description: recipeId is not exists
+  /recipes/random:
+  get:
+    tags:
+      - Recipes
+    summary: Returns 3 random recipes from the data
+    description: Returns an array of 3 random recipes from the data
+    responses:
+      "200":
+        description: Data about the recipes
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/RecipePreview'
+      "500":
+        description: Internal Server Error
+  /searched_recipe:
+    get:
+      tags:
+        - Recipes
+      summary: Search recipes
+      description: |
+        Retrieve a list of recipes that match the search query and filters.
+        If the user is logged in, the last search query will be used as the default search query.
+      parameters:
+        - name: recepieName
+          in: query
+          description: The search query to match against recipe names.
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of recipes to retrieve.
+          required: false
+          schema:
+            type: integer
+            enum: [5, 10, 15]
+            default: 5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+        '404':
+          description: No recipes found
 components:
   schemas:
     User:
