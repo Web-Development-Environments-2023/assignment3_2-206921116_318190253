@@ -52,6 +52,20 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+router.post('/viewed', async(req, res, next) =>{
+  try{
+    const user_id = req.body.user_id;
+    //req.session.user_id;
+    const recipe_id = req.body.recipe_id;
+    await user_utils.MarkLastRecipeViewed(user_id,recipe_id);
+    res.status(200).send("The Recipe successfully saved as viewed lately");
+  
+  }
+  catch(error){
+    next(error);
+  }
+  })
+
 
 
 
