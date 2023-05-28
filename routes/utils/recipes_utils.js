@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { response } = require("express");
 const api_domain = "https://api.spoonacular.com/recipes";
 require('dotenv').config();
 
@@ -61,6 +62,7 @@ async function getRecipeByFilter( _query, _cuisine, _intolerance, _diet, _number
     const params = {
         apiKey: process.env.spooncular_apiKey,
         query: _query,
+        number: 5 
       };
     
       if (_cuisine !== "none") {
@@ -80,14 +82,53 @@ async function getRecipeByFilter( _query, _cuisine, _intolerance, _diet, _number
       }
     
       const response = await axios.get(`${api_domain}/complexSearch`, { params });
-      return response.data;
+
+      const recipes = response.data.results;
+
+    // Map each recipe ID to its corresponding recipe details
+      const recipeDetailsPromises = recipes.map(recipe => {
+        const recipeId = recipe.id;
+        return getRecipeDetails(recipeId);
+      });
+      const recipeDetails = await Promise.all(recipeDetailsPromises);
+
+      return recipeDetails;
 
 }
+
+async function getRecipeFullest(recipe_id) {
+    const response = await axios.get(`${api_domain}/${recipe_id}/information`, {
+        params: {
+            includeNutrition: false,
+            apiKey: process.env.spooncular_apiKey
+        }
+    });
+
+    let {servings, instructions, extendedIngredients}= response.data;
+    
+    const ingridients= extendedIngredients.map(ingridient => {
+        return [ingridient.name, ingridient.amount, ingridient.unit];
+    });
+
+    const ingridientsMinimize = await Promise.all(ingridients);
+    details= await getRecipeDetails(recipe_id);
+
+      return{
+        details: details,
+        servings: servings,
+        instructions: instructions,
+        ingridients: ingridientsMinimize
+
+      }
+    }
+
+
 
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRandomRecipe = getRandomRecipe;
 exports.getRecipeByFilter = getRecipeByFilter;
+exports.getRecipeFullest = getRecipeFullest;
 
 
 

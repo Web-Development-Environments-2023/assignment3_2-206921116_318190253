@@ -33,11 +33,24 @@ router.get("/random", async (req, res, next) => {
 });
 
 /**
- * This path returns a full details of a recipe by its id
+ * This path returns a preview details of a recipe by its id
  */
 router.get("/:recipeId", async (req, res, next) => {
   try {
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+/**
+ * This path returns a full details of a recipe by its id
+ */
+router.get("/full/:recipeId", async (req, res, next) => {
+  try {
+    const recipe = await recipes_utils.getRecipeFullest(req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);
