@@ -9,61 +9,26 @@ async function getFavoriteRecipes(user_id){
     return recipes_id;
 }
 
-async function MarkLastRecipeViewed(user_id, new_recipe_id){
-    await DButils.execQuery(`
-    UPDATE users
-    SET recipeHistory = JSON_ARRAY_INSERT(
-      JSON_REMOVE(recipeHistory, '$[2]'),
-      '$[0]',
-      JSON_EXTRACT(recipeHistory, '$[1]')
-    )
-    WHERE JSON_LENGTH(recipeHistory) >= 3 AND user_id = '${user_id}';
-  `);
+async function MarkLastRecipeViewed(user_id, recipe_id){
+    const countViewed = await DButils.execQuery(`SELECT COUNT(*) as count FROM viewed_recipes WHERE user_id = '${user_id}'`)
+    const count = countViewed[0].count;
+    console.log(count)
+    if (count < 3) {
+        console.log("got here!")
+        // User has less than three saved recipes, so insert a new row
+        const insertQuery = `INSERT INTO viewed_recipes (user_id, recipe_id, viewed_at) VALUES (${user_id}, ${recipe_id}, NOW())`;
+        await DButils.execQuery(insertQuery);
+        console.log('New row inserted successfully!');
+      } else {
+        // User already has three saved recipes, so update the oldest one
+        const selectQuery = `SELECT id FROM viewed_recipes WHERE user_id = ${user_id} ORDER BY viewed_at ASC LIMIT 1`;
+        const rows = await DButils.execQuery(selectQuery);
+        const oldest_id = rows[0].id;
   
-  await DButils.execQuery(`
-    UPDATE users
-    SET recipeHistory = JSON_ARRAY_INSERT(recipeHistory, '$[1]', JSON_EXTRACT(recipeHistory, '$[0]'))
-    WHERE JSON_LENGTH(recipeHistory) >= 3 AND user_id = '${user_id}';
-  `);
-
-  await DButils.execQuery(`
-  UPDATE users
-  SET recipeHistory = JSON_ARRAY_INSERT(recipeHistory, '$[0]', '${new_recipe_id}')
-  WHERE user_id = '${user_id}';
-`);
-
-const result = await DButils.execQuery(`
-  SELECT JSON_EXTRACT(recipeHistory, '$[0]') AS recipe1,
-         JSON_EXTRACT(recipeHistory, '$[1]') AS recipe2,
-         JSON_EXTRACT(recipeHistory, '$[2]') AS recipe3
-  FROM users
-  WHERE user_id = '${user_id}'
-`);
-
-// Access the values
-const recipe1 = result[0].recipe1;
-const recipe2 = result[0].recipe2;
-const recipe3 = result[0].recipe3;
-
-console.log(recipe1)
-  
-// await DButils.execQuery(`
-//   UPDATE users
-//   SET recipeHistory = '${new_recipe_id}'
-//   WHERE user_id = '${user_id}';
-// `);
-
-// const result = await DButils.execQuery(`
-//   SELECT recipeHistory
-//   FROM users
-//   WHERE user_id = '${user_id}'
-// `);
-
-// // Access the value
-// const recipe = result.recipeHistory;
-
-// console.log(new_recipe_id);
-  
+        const updateQuery = `UPDATE viewed_recipes SET recipe_id = ${recipe_id}, viewed_at = NOW() WHERE id = ${oldest_id}`;
+        await DButils.execQuery(updateQuery);
+        console.log('Row updated successfully!');
+      }
 }
 
 
