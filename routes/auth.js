@@ -70,6 +70,11 @@ router.post("/Login", async (req, res, next) => {
 
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
+
+    const userId = user.user_id;
+    const updateQuery = `UPDATE users SET lastSearch = NULL WHERE user_id = ${userId}`;
+    await DButils.execQuery(updateQuery);
+
   } catch (error) {
     next(error);
   }

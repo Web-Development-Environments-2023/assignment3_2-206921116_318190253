@@ -5,7 +5,8 @@ const recipes_utils = require("./utils/recipes_utils");
 router.get("/", (req, res) => res.send("im here"));
 
 /**
- * This path returns random recipe
+ *  * This path returns a certin recipe by filters 
+
  */
 router.get("/complexSearch", async (req, res, next) => {
   try {
@@ -21,7 +22,7 @@ router.get("/complexSearch", async (req, res, next) => {
 });
 
 /**
- * This path returns a certin recipe by filters 
+ * This path returns random recipe
  */
 router.get("/random", async (req, res, next) => {
   try {
