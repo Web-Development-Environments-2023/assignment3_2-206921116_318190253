@@ -52,6 +52,43 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+router.get('/getmyrecipe', async (req, res, next)=>{
+try{
+  const recipe_id = req.body.recipe_id;
+  const results = await recipe_utils.getMyRecipe(recipe_id);
+  res.status(200).send(results);
+
+}
+catch(error){
+  next(error); 
+}
+
+})
+
+router.get('/viewed', async (req, res, next)=>{
+try{
+  const user_id = req.session.user_id;
+  const results = await recipe_utils.getViewed(user_id);
+  res.status(200).send(results);
+}
+catch(error){
+  next(error); 
+}
+
+})
+
+router.get('/MyfamilyRecipes', async (req, res, next)=>{
+  try{
+    const user_id = req.session.user_id;
+    const results = await recipe_utils.getFamilyRecipes(user_id);
+    res.status(200).send(results);
+  }
+  catch(error){
+    next(error); 
+  }
+
+})
+
 /**
  * This path adds viewed recipes to the database
  */

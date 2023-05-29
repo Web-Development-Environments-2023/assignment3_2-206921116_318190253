@@ -2,6 +2,7 @@ const axios = require("axios");
 const { response } = require("express");
 const api_domain = "https://api.spoonacular.com/recipes";
 require('dotenv').config();
+const DButils = require("./DButils");
 
 
 
@@ -55,6 +56,22 @@ async function getRandomRecipe() {
     const recipeDetails = await Promise.all(recipeDetailsPromises);
 
     return recipeDetails;
+}
+
+async function getMyRecipe(recipe_id){
+  const info = await DButils.execQuery(`select name, image, duration, likes, vegan, vegetarian, glutenFree, instructions, servings, ingredients from user_recipes where recipe_id='${recipe_id}'`);
+  return info[0]
+}
+
+async function getFamilyRecipes(user_id){
+  const info = await DButils.execQuery(`select name, image, duration, instructions, servings, ingredients, creator, season from family_recipes where user_id='${user_id}'`);
+  return info
+}
+
+async function getViewed(user_id){
+  const recipes_id = await DButils.execQuery(`select recipe_id from viewed_recipes where user_id='${user_id}'`);
+  //console.log(recipes_id);
+  return recipes_id;
 }
 
 
@@ -129,6 +146,7 @@ exports.getRecipeDetails = getRecipeDetails;
 exports.getRandomRecipe = getRandomRecipe;
 exports.getRecipeByFilter = getRecipeByFilter;
 exports.getRecipeFullest = getRecipeFullest;
-
-
+exports.getMyRecipe = getMyRecipe;
+exports.getViewed = getViewed;
+exports.getFamilyRecipes = getFamilyRecipes;
 
