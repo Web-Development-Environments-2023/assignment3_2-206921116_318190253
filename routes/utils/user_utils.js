@@ -32,7 +32,24 @@ async function MarkLastRecipeViewed(user_id, recipe_id){
 }
 
 
+async function addUserRecipe(user_id, data) {
+  const rows = await DButils.execQuery(
+    `INSERT INTO user_recipes (user_id, name, image, duration, likes, vegan, vegetarian, glutenFree, instructions, servings) VALUES 
+    ('${user_id}', '${data.name}', '${data.image}', '${data.duration}', '${data.likes}', '${data.vegan}',
+     '${data.vegetarian}', '${data.glutenFree}', '${data.instructions}', '${data.servings}')`
+  );
+
+  const ingredientsJSON = JSON.stringify(data.ingredients);
+  const id = rows.insertId;
+
+  const updateQuery = `UPDATE user_recipes SET ingredients = '${ingredientsJSON}' WHERE recipe_id = ${id}`;
+  await DButils.execQuery(updateQuery);
+}
+
+
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.MarkLastRecipeViewed = MarkLastRecipeViewed;
+exports.addUserRecipe = addUserRecipe;
+

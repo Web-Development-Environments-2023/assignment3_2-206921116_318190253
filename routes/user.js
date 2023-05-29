@@ -52,10 +52,12 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+/**
+ * This path adds viewed recipes to the database
+ */
 router.post('/viewed', async(req, res, next) =>{
   try{
-    const user_id = req.body.user_id;
-    //req.session.user_id;
+    const user_id = req.session.user_id;
     const recipe_id = req.body.recipe_id;
     await user_utils.MarkLastRecipeViewed(user_id,recipe_id);
     res.status(200).send("The Recipe successfully saved as viewed lately");
@@ -66,6 +68,42 @@ router.post('/viewed', async(req, res, next) =>{
   }
   })
 
+  /**
+ * This path updates the last serach query from the user in the data base
+ */
+
+  router.post('/lastSearch', async(req, res, next)=>{
+    try{
+      const user_id = req.session.user_id;
+      const query = req.body.search;
+      const updateQuery = `UPDATE users SET lastSearch = '${query}' WHERE user_id = ${user_id}`;
+      await DButils.execQuery(updateQuery);
+      res.status(200).send("The query successfully saved as last search");
+
+    }
+    catch(error){
+      next(error);
+    }
+
+  });
+
+
+   /**
+ * This path updates the last serach query from the user in the data base
+ */
+
+   router.post('/addUserRecipe', async(req, res, next)=>{
+    try{
+      const user_id = req.session.user_id;
+      const data = req.body;
+      await user_utils.addUserRecipe(user_id, data);
+      res.status(200).send("The recipe successfully added");
+    }
+    catch(error){
+      next(error);
+    }
+
+  });
 
 
 
