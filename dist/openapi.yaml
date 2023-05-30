@@ -68,6 +68,78 @@ paths:
       responses:
         "200":
           description: "the user has ben successfully logged out"
+  /recipes/complexSearch:
+    get:
+      tags:
+        - recipes
+      summary: search a recipe by filters - cuisine, intolerance, diet and number(?)
+      responses:
+        "200":
+          description: data about relevant recipes has returned
+  /recipes/:recipeId:
+    get:
+      tags:
+        - recipes
+      summary: FILL
+      responses:
+        "200":
+          description: FILL
+  /recipes/full/:recipeId:
+    get:
+      tags:
+        - recipes
+      summary: FILL
+      responses:
+        "200":
+          description: FILL
+
+  /users/getmyrecipe:
+    get:
+      tags:
+        - users
+      summary: get the details of a recipe this user has created in the past by ID of the recipe
+      responses:
+        "200":
+          description: data about the recipe with the given ID has returned
+  /users/MyfamilyRecipes:
+    get:
+      tags:
+        - FILL
+      summary: get all family recipes of the current user
+      responses:
+        "200":
+          description: data about all family recipes of the current user has returned
+  /users/lastSearch:
+    post:
+      tags:
+        - FILL
+      summary: update the last search the was done by the current user in the DB
+      responses:
+        "200":
+          description: the last search in the DB for the current user is updated, the prior last search no longer appears
+  /users/addUserRecipe:
+    post:
+      tags:
+        - FILL
+      summary: create a new recipe according to the user's definitions
+      responses:
+        "200":
+          description: a new recipe was created with a new row in the DB with the details
+  /users/viewed:
+    get:
+      tags:
+        - users
+      summary: get the last 3 recipes this user has viewed
+      responses:
+        "200":
+          description: the IDs of the 3 recipes the user has last viewed is returned
+    post:
+      tags:
+      - Users
+      summary: update the last viewed page of the user
+      responses:
+        "200":
+          description: the last viewed page of the current user is updated in the DB, the 3rd page prior to the addition is now deleted from last viewed for this user
   /users/favorites:
     get:
       tags:
