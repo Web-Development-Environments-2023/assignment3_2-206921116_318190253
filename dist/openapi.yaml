@@ -71,40 +71,70 @@ paths:
   /recipes/complexSearch:
     get:
       tags:
-        - recipes
-      summary: search a recipe by filters - cuisine, intolerance, diet and number(?)
+        - Recipes
+      summary: Search recipes
+      description: |
+        Retrieve a list of recipes that match the search query and filters.
+        If the user is logged in, the last search query will be used as the default search query.
+      parameters:
+        - name: recepieName
+          in: query
+          description: The search query to match against recipe names.
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of recipes to retrieve.
+          required: false
+          schema:
+            type: integer
+            enum: [5, 10, 15]
+            default: 5
       responses:
-        "200":
-          description: data about relevant recipes has returned
-  /recipes/:recipeId:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+        '404':
+          description: No recipes found
+  /recipes/full/:recipeId: 
     get:
       tags:
         - recipes
-      summary: FILL
+      summary: Return full details on recipe by his ID
       responses:
         "200":
-          description: FILL
-  /recipes/full/:recipeId:
-    get:
-      tags:
-        - recipes
-      summary: FILL
-      responses:
-        "200":
-          description: FILL
+          description: full details of the recipe are returned
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/recipeDetails'
+        '404':
+          description: Recipe not found
 
   /users/getmyrecipe:
     get:
       tags:
-        - users
+        - Users
       summary: get the details of a recipe this user has created in the past by ID of the recipe
       responses:
         "200":
           description: data about the recipe with the given ID has returned
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/RecipePreview'
+        "401":
+          description: recipe ID for this user's recipes doesn't exist
   /users/MyfamilyRecipes:
     get:
-      tags:
-        - FILL
+      tags: 
+        - Users
       summary: get all family recipes of the current user
       responses:
         "200":
@@ -112,15 +142,17 @@ paths:
   /users/lastSearch:
     post:
       tags:
-        - FILL
+        - Users
       summary: update the last search the was done by the current user in the DB
       responses:
         "200":
           description: the last search in the DB for the current user is updated, the prior last search no longer appears
+        "401":
+          description: user has no last search
   /users/addUserRecipe:
     post:
       tags:
-        - FILL
+        - Users
       summary: create a new recipe according to the user's definitions
       responses:
         "200":
@@ -128,11 +160,18 @@ paths:
   /users/viewed:
     get:
       tags:
-        - users
+        - Users
       summary: get the last 3 recipes this user has viewed
       responses:
         "200":
           description: the IDs of the 3 recipes the user has last viewed is returned
+                    content:
+            application/json:
+              schema:
+                type: array
+                items: Integer
+        "401":
+          description: user has no last views
     post:
       tags:
       - Users
@@ -222,40 +261,7 @@ paths:
                 $ref: '#/components/schemas/RecipePreview'
       "500":
         description: Internal Server Error
-  /searched_recipe:
-    get:
-      tags:
-        - Recipes
-      summary: Search recipes
-      description: |
-        Retrieve a list of recipes that match the search query and filters.
-        If the user is logged in, the last search query will be used as the default search query.
-      parameters:
-        - name: recepieName
-          in: query
-          description: The search query to match against recipe names.
-          required: false
-          schema:
-            type: string
-        - name: limit
-          in: query
-          description: The maximum number of recipes to retrieve.
-          required: false
-          schema:
-            type: integer
-            enum: [5, 10, 15]
-            default: 5
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RecipePreview'
-        '404':
-          description: No recipes found
+
 components:
   schemas:
     User:
@@ -350,4 +356,25 @@ components:
           type: boolean
           description: indication if the recipe is gluten free
           example: false
-  
+    recipeExtra:
+      type: object
+      properties:
+        ingredients:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              amount:
+                type: integer
+        instructions:
+          type: array
+          items:
+            type: string
+        servings:
+          type: integer
+    recipeDetails:
+      allOf:
+        - $ref: '#/components/schemas/recipeReview'
+        - $ref: '#/components/schemas/recipeExtra'
