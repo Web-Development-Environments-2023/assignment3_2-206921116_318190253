@@ -16,6 +16,7 @@ router.use(async function (req, res, next) {
       }
     }).catch(err => next(err));
   } else {
+
     res.sendStatus(401);
   }
 });
@@ -67,9 +68,42 @@ catch(error){
 
 router.get('/viewed', async (req, res, next)=>{
 try{
-  const user_id = req.session.user_id;
-  const results = await recipe_utils.getViewed(user_id);
-  res.status(200).send(results);
+  // const user_id = req.session.user_id;
+  // const results = await recipe_utils.getViewed(user_id);
+  // res.status(200).send(results);
+
+  res.send([
+    {
+        "id": 640166,
+        "title": "Cornmeal-Crusted Catfish with Cajun Seasoning and Spicy Tartar Sauce",
+        "readyInMinutes": 45,
+        "image": "https://spoonacular.com/recipeImages/640166-556x370.jpg",
+        "popularity": 8,
+        "vegan": false,
+        "vegetarian": false,
+        "glutenFree": true
+    },
+    {
+        "id": 975070,
+        "title": "Instant Pot Chicken Taco Soup",
+        "readyInMinutes": 25,
+        "image": "https://spoonacular.com/recipeImages/975070-556x370.jpg",
+        "popularity": 6,
+        "vegan": false,
+        "vegetarian": false,
+        "glutenFree": true
+    },
+    {
+        "id": 1098357,
+        "title": "Three Ingredient Frozen Pina Colada",
+        "readyInMinutes": 5,
+        "image": "https://spoonacular.com/recipeImages/1098357-556x370.jpg",
+        "popularity": 6,
+        "vegan": true,
+        "vegetarian": true,
+        "glutenFree": true
+    }
+])
 }
 catch(error){
   next(error); 

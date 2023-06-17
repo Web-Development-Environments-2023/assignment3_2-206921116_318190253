@@ -75,11 +75,10 @@ async function getViewed(user_id){
 }
 
 
-async function getRecipeByFilter( _query, _cuisine, _intolerance, _diet, _number) {
+async function getRecipeByFilter( _query, _cuisine, _intolerance, _diet, _number=5) {
     const params = {
         apiKey: process.env.spooncular_apiKey,
-        query: _query,
-        number: 5 
+        query: _query
       };
     
       if (_cuisine !== "none") {
@@ -121,21 +120,37 @@ async function getRecipeFullest(recipe_id) {
         }
     });
 
-    let {servings, instructions, extendedIngredients}= response.data;
+    let {analyzedInstructions,
+      instructions,
+      extendedIngredients,
+      aggregateLikes,
+      readyInMinutes,
+      image,
+      title}= response.data;
     
-    const ingridients= extendedIngredients.map(ingridient => {
-        return [ingridient.name, ingridient.amount, ingridient.unit];
-    });
+    // const ingridients= extendedIngredients.map(ingridient => {
+    //     return [ingridient.name, ingridient.amount, ingridient.unit];
+    // });
 
-    const ingridientsMinimize = await Promise.all(ingridients);
-    details= await getRecipeDetails(recipe_id);
+    // const ingridientsMinimize = await Promise.all(ingridients);
+    // details= await getRecipeDetails(recipe_id);
 
-      return{
-        details: details,
-        servings: servings,
-        instructions: instructions,
-        ingridients: ingridientsMinimize
+      // return{
+      //   details: details,
+      //   servings: servings,
+      //   instructions: instructions,
+      //   ingridients: ingridientsMinimize
 
+      // }
+
+      return {
+        analyzedInstructions:analyzedInstructions,
+        instructions:instructions,
+        extendedIngredients:extendedIngredients,
+        aggregateLikes:aggregateLikes,
+        readyInMinutes:readyInMinutes,
+        image:image,
+        title:title
       }
     }
 
