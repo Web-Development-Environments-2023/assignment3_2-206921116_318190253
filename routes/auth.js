@@ -3,41 +3,48 @@ var router = express.Router();
 const MySql = require("../routes/utils/MySql");
 const DButils = require("../routes/utils/DButils");
 const bcrypt = require("bcrypt");
+//we assume that the client sends all this info correctly
+  router.post("/Register", async (req, res, next) => {
+    try {
+      // parameters exists
+      // valid parameters
+      // username exists
+      let user_details = {
+        username: req.body.username,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        country: req.body.country,
+        password: req.body.password,
+        email: req.body.email,
+        profilePic: req.body.profilePic
+      }
+      let users = [];
+      users = await DButils.execQuery("SELECT username from users");
 
-router.post("/Register", async (req, res, next) => {
-  try {
-    // parameters exists
-    // valid parameters
-    // username exists
-    let user_details = {
-      username: req.body.username,
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      country: req.body.country,
-      password: req.body.password,
-      email: req.body.email,
-      profilePic: req.body.profilePic
+      if (users.find((x) => x.username === user_details.username))
+        throw { status: 409, message: "Username taken" };
+
+      // add the new username
+      let hash_password = bcrypt.hashSync(
+        user_details.password,
+        parseInt(process.env.bcrypt_saltRounds)
+      );
+
+      await DButils.execQuery(
+        `INSERT INTO users (username, firstname, lastname, country, password, email) VALUES 
+        ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}', 
+        '${user_details.country}', '${hash_password}', '${user_details.email}')`
+      );
+      
+      // await DButils.execQuery(
+      //   `INSERT INTO users VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
+      //   '${user_details.country}', '${hash_password}', '${user_details.email}')`
+      // );
+      res.status(201).send({ message: "user created", success: true });
+    } catch (error) {
+      next(error);
     }
-    let users = [];
-    users = await DButils.execQuery("SELECT username from users");
-
-    if (users.find((x) => x.username === user_details.username))
-      throw { status: 409, message: "Username taken" };
-
-    // add the new username
-    let hash_password = bcrypt.hashSync(
-      user_details.password,
-      parseInt(process.env.bcrypt_saltRounds)
-    );
-    await DButils.execQuery(
-      `INSERT INTO users VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}')`
-    );
-    res.status(201).send({ message: "user created", success: true });
-  } catch (error) {
-    next(error);
-  }
-});
+  });
 
 router.post("/Login", async (req, res, next) => {
   try {
@@ -59,10 +66,15 @@ router.post("/Login", async (req, res, next) => {
 
     // Set cookie
     req.session.user_id = user.user_id;
-
-
+    console.log("login"+req.session.user_id)
+    
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
+
+    const userId = user.user_id;
+    const updateQuery = `UPDATE users SET lastSearch = NULL WHERE user_id = ${userId}`;
+    await DButils.execQuery(updateQuery);
+
   } catch (error) {
     next(error);
   }
