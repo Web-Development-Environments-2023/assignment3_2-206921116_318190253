@@ -39,6 +39,24 @@ async function getRecipeDetails(recipe_id) {
     }
 }
 
+async function getMyRecipeDetails(recipe_id){
+  let { id, title, image, duration, likes, vegan, vegetarian, glutenFree, instruction, servings, ingredients } = `select user_id, name, image, duration, likes, vegan, vegetarian, glutenFree, instruction, servings, ingredients from user_recipes where recipe_id='${recipe_id}'`;
+  return{
+    id:id,
+    title:title,
+    image:image,
+    duration:duration,
+    likes:likes,
+    vegan:vegan,
+    vegetarian:vegetarian,
+    glutenFree:glutenFree,
+    instruction:instruction,
+    servings:servings,
+    ingredients:ingredients
+  }
+
+}
+
 async function getRandomRecipe() {
     const response= await axios.get(`${api_domain}/random`, {
         params: {
@@ -60,7 +78,16 @@ async function getRandomRecipe() {
 
 async function getMyRecipe(recipe_id){
   const info = await DButils.execQuery(`select name, image, duration, likes, vegan, vegetarian, glutenFree, instructions, servings, ingredients from user_recipes where recipe_id='${recipe_id}'`);
-  return info[0]
+  return({
+    "id": recipe_id,
+    "title": info[0].name,
+    "readyInMinutes": info[0].duration,
+    "image": info[0].image,
+    "popularity": info[0].likes,
+    "vegan": info[0].vegan,
+    "vegetarian": info[0].vegetarian,
+    "glutenFree": info[0].glutenFree
+  })
 }
 
 async function getFamilyRecipes(user_id){
@@ -70,10 +97,17 @@ async function getFamilyRecipes(user_id){
 
 async function getViewed(user_id){
   const recipes_id = await DButils.execQuery(`select recipe_id from viewed_recipes where user_id='${user_id}'`);
-  //console.log(recipes_id);
-  return recipes_id;
-}
+  
+  // Map each recipe ID to its corresponding recipe details
+  const recipeDetailsPromises = recipes_id.map(recipe => {
+      const recipeId = recipe.recipe_id;
+      return getRecipeDetails(recipeId);
+  });
+  const recipeDetails = await Promise.all(recipeDetailsPromises);
+  console.log(recipeDetails)
+  return recipeDetails;
 
+  }
 
 async function getRecipeByFilter( _query, _cuisine, _intolerance, _diet, _number=5) {
     const params = {
@@ -113,47 +147,50 @@ async function getRecipeByFilter( _query, _cuisine, _intolerance, _diet, _number
 }
 
 async function getRecipeFullest(recipe_id) {
-    const response = await axios.get(`${api_domain}/${recipe_id}/information`, {
-        params: {
-            includeNutrition: false,
-            apiKey: process.env.spooncular_apiKey
-        }
-    });
-
-    let {analyzedInstructions,
-      instructions,
-      extendedIngredients,
-      aggregateLikes,
-      readyInMinutes,
-      image,
-      title}= response.data;
-    
-    // const ingridients= extendedIngredients.map(ingridient => {
-    //     return [ingridient.name, ingridient.amount, ingridient.unit];
-    // });
-
-    // const ingridientsMinimize = await Promise.all(ingridients);
-    // details= await getRecipeDetails(recipe_id);
-
-      // return{
-      //   details: details,
-      //   servings: servings,
-      //   instructions: instructions,
-      //   ingridients: ingridientsMinimize
-
-      // }
-
-      return {
-        analyzedInstructions:analyzedInstructions,
-        instructions:instructions,
-        extendedIngredients:extendedIngredients,
-        aggregateLikes:aggregateLikes,
-        readyInMinutes:readyInMinutes,
-        image:image,
-        title:title
+  const response = await axios.get(`${api_domain}/${recipe_id}/information`, {
+      params: {
+          includeNutrition: false,
+          apiKey: process.env.spooncular_apiKey
       }
-    }
+  });
 
+  console.log(response.data);
+
+  let {analyzedInstructions,
+    instructions,
+    extendedIngredients,
+    aggregateLikes,
+    readyInMinutes,
+    image,
+    title,
+    servings}= response.data;
+  
+  // const ingridients= extendedIngredients.map(ingridient => {
+  //     return [ingridient.name, ingridient.amount, ingridient.unit];
+  // });
+
+  // const ingridientsMinimize = await Promise.all(ingridients);
+  // details= await getRecipeDetails(recipe_id);
+
+    // return{
+    //   details: details,
+    //   servings: servings,
+    //   instructions: instructions,
+    //   ingridients: ingridientsMinimize
+
+    // }
+
+    return {
+      analyzedInstructions:analyzedInstructions,
+      instructions:instructions,
+      extendedIngredients:extendedIngredients,
+      aggregateLikes:aggregateLikes,
+      readyInMinutes:readyInMinutes,
+      image:image,
+      title:title,
+      servings:servings
+    }
+  }
 
 
 
@@ -164,4 +201,5 @@ exports.getRecipeFullest = getRecipeFullest;
 exports.getMyRecipe = getMyRecipe;
 exports.getViewed = getViewed;
 exports.getFamilyRecipes = getFamilyRecipes;
+exports.getMyRecipeDetails = getMyRecipeDetails;
 
