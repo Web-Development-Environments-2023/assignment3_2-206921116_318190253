@@ -246,6 +246,44 @@ async function getRecipeFullest(recipe_id) {
       }
     }
 
+    async function getFamilyRecipeFullest(recipe_id) {
+      const info = await DButils.execQuery(`select name, image, duration, likes, vegan, vegetarian, glutenFree, instructions, servings, ingredients from family_recipes where recipe_id='${recipe_id}'`);
+      analyzedInstructions = info[0].name
+        instructions= info[0].instructions,
+        extendedIngredients = info[0].ingredients,
+        aggregateLikes = info[0].likes,
+        readyInMinutes = info[0].duration,
+        image = info[0].image,
+        title = info[0].name,
+        servings = info[0].servings
+      
+      // const ingridients= extendedIngredients.map(ingridient => {
+      //     return [ingridient.name, ingridient.amount, ingridient.unit];
+      // });
+    
+      // const ingridientsMinimize = await Promise.all(ingridients);
+      // details= await getRecipeDetails(recipe_id);
+    
+        // return{
+        //   details: details,
+        //   servings: servings,
+        //   instructions: instructions,
+        //   ingridients: ingridientsMinimize
+    
+        // }
+    
+        return {
+          analyzedInstructions:analyzedInstructions,
+          instructions:instructions,
+          extendedIngredients:extendedIngredients,
+          aggregateLikes:aggregateLikes,
+          readyInMinutes:readyInMinutes,
+          image:image,
+          title:title,
+          servings:servings
+        }
+      }
+
 
 
 exports.getRecipeDetails = getRecipeDetails;
@@ -258,3 +296,4 @@ exports.getFamilyRecipes = getFamilyRecipes;
 exports.getMyRecipeDetails = getMyRecipeDetails;
 exports.getMyRecipeFullest = getMyRecipeFullest;
 exports.getfamilyRecipe = getfamilyRecipe;
+exports.getFamilyRecipeFullest = getFamilyRecipeFullest;
