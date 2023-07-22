@@ -152,6 +152,16 @@ router.get("/full/:recipeId", async (req, res, next) => {
   }
 });
 
+router.get("/myfull/:recipeId", async (req, res, next) => {
+  try {
+    console.log(req)
+    const recipe = await recipes_utils.getMyRecipeFullest(req.params.recipeId);
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 
 module.exports = router;
