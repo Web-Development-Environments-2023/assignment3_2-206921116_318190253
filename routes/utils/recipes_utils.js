@@ -90,6 +90,22 @@ async function getMyRecipe(recipe_id){
   })
 }
 
+
+
+async function getfamilyRecipe(recipe_id){
+  const info = await DButils.execQuery(`select name, image, duration, likes, vegan, vegetarian, glutenFree, instructions, servings, ingredients from family_recipes where recipe_id='${recipe_id}'`);
+  return({
+    "id": recipe_id,
+    "title": info[0].name,
+    "readyInMinutes": info[0].duration,
+    "image": info[0].image,
+    "popularity": info[0].likes,
+    "vegan": info[0].vegan,
+    "vegetarian": info[0].vegetarian,
+    "glutenFree": info[0].glutenFree
+  })
+}
+
 async function getFamilyRecipes(user_id){
   const info = await DButils.execQuery(`select name, image, duration, instructions, servings, ingredients, creator, season from family_recipes where user_id='${user_id}'`);
   return info
@@ -241,4 +257,4 @@ exports.getViewed = getViewed;
 exports.getFamilyRecipes = getFamilyRecipes;
 exports.getMyRecipeDetails = getMyRecipeDetails;
 exports.getMyRecipeFullest = getMyRecipeFullest;
-
+exports.getfamilyRecipe = getfamilyRecipe;

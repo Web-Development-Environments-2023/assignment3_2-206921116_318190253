@@ -176,5 +176,20 @@ router.post('/viewed', async(req, res, next) =>{
   });
 
 
+  router.get('/getfamilyrecipes', async (req, res, next)=>{
+    try{
+      const user_id = req.session.user_id;
+      const results = await user_utils.getFamilyRecipes(user_id);
+      // console.log("final:")
+      // console.log(results)
+      res.status(200).send(results);
+    }
+    catch(error){
+      next(error); 
+    }
+    
+    })
+
+
 
 module.exports = router;
