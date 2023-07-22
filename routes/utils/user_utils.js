@@ -26,6 +26,17 @@ async function getMyRecipes(user_id){
   return recipeDetails;
 }
 
+async function getFamilyRecipes(user_id){
+  const recipes_id = await DButils.execQuery(`select recipe_id from family_recipes`);
+  console.log(recipes_id)
+  const recipeDetailsPromises = recipes_id.map(recipe => {
+    const recipeId = recipe.recipe_id;
+    return recipes_utils.getfamilyRecipe(recipeId);
+  });
+  const recipeDetails = await Promise.all(recipeDetailsPromises);
+  return recipeDetails;
+}
+
 async function MarkLastRecipeViewed(user_id, recipe_id){
     const countViewed = await DButils.execQuery(`SELECT COUNT(*) as count FROM viewed_recipes WHERE user_id = '${user_id}'`)
     const count = countViewed[0].count;
@@ -67,3 +78,4 @@ exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.MarkLastRecipeViewed = MarkLastRecipeViewed;
 exports.addUserRecipe = addUserRecipe;
 exports.getMyRecipes = getMyRecipes;
+exports.getFamilyRecipes = getFamilyRecipes;
